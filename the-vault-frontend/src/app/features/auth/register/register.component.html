@@ -1,0 +1,186 @@
+<div class="register-container">
+    <h2 class="form-title">JOIN THE VAULT</h2>
+    <p class="form-subtitle">Create your account and start your journey</p>
+  
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="username">
+            <i class="fas fa-user"></i>
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            formControlName="username"
+            placeholder="Choose a username"
+            [class.is-invalid]="showErrors && f['username'].errors"
+          >
+          <div class="error-message" *ngIf="showErrors && f['username'].errors?.['required']">
+            Username is required
+          </div>
+          <div class="error-message" *ngIf="showErrors && f['username'].errors?.['minlength']">
+            Username must be at least 3 characters
+          </div>
+          <div class="error-message" *ngIf="showErrors && f['username'].errors?.['pattern']">
+            Username can only contain letters, numbers, and underscores
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="email">
+            <i class="fas fa-envelope"></i>
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.is-invalid]="showErrors && f['email'].errors"
+          >
+          <div class="error-message" *ngIf="showErrors && f['email'].errors?.['required']">
+            Email is required
+          </div>
+          <div class="error-message" *ngIf="showErrors && f['email'].errors?.['email']">
+            Please enter a valid email
+          </div>
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="fullName">
+          <i class="fas fa-id-card"></i>
+          Full Name (Optional)
+        </label>
+        <input
+          type="text"
+          id="fullName"
+          formControlName="fullName"
+          placeholder="Enter your full name"
+        >
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">
+            <i class="fas fa-lock"></i>
+            Password
+          </label>
+          <div class="password-input">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              placeholder="Create a password"
+              [class.is-invalid]="showErrors && f['password'].errors"
+              (input)="updatePasswordStrength()"
+            >
+            <button type="button" class="password-toggle" (click)="togglePassword()">
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="confirmPassword">
+            <i class="fas fa-lock"></i>
+            Confirm Password
+          </label>
+          <div class="password-input">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              placeholder="Confirm your password"
+              [class.is-invalid]="showErrors && (f['confirmPassword'].errors || registerForm.errors?.['passwordMismatch'])"
+            >
+            <button type="button" class="password-toggle" (click)="toggleConfirmPassword()">
+              <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <div class="password-strength" *ngIf="f['password'].value">
+        <div class="strength-meter">
+          <div class="strength-segment" [class.active]="passwordStrength.score >= 1" [style.background]="getStrengthColor(1)"></div>
+          <div class="strength-segment" [class.active]="passwordStrength.score >= 2" [style.background]="getStrengthColor(2)"></div>
+          <div class="strength-segment" [class.active]="passwordStrength.score >= 3" [style.background]="getStrengthColor(3)"></div>
+          <div class="strength-segment" [class.active]="passwordStrength.score >= 4" [style.background]="getStrengthColor(4)"></div>
+          <div class="strength-segment" [class.active]="passwordStrength.score >= 5" [style.background]="getStrengthColor(5)"></div>
+        </div>
+        <div class="strength-text" [style.color]="getStrengthColor(passwordStrength.score)">
+          {{ getStrengthText() }}
+        </div>
+      </div>
+  
+      <div class="password-requirements">
+        <p class="requirements-title">Password must contain:</p>
+        <ul>
+          <li [class.valid]="passwordStrength.hasLength">
+            <i [class]="passwordStrength.hasLength ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+            At least 8 characters
+          </li>
+          <li [class.valid]="passwordStrength.hasUpperCase">
+            <i [class]="passwordStrength.hasUpperCase ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+            One uppercase letter
+          </li>
+          <li [class.valid]="passwordStrength.hasLowerCase">
+            <i [class]="passwordStrength.hasLowerCase ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+            One lowercase letter
+          </li>
+          <li [class.valid]="passwordStrength.hasNumber">
+            <i [class]="passwordStrength.hasNumber ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+            One number
+          </li>
+          <li [class.valid]="passwordStrength.hasSpecial">
+            <i [class]="passwordStrength.hasSpecial ? 'fas fa-check-circle' : 'fas fa-circle'"></i>
+            One special character
+          </li>
+        </ul>
+      </div>
+  
+      <div class="error-message" *ngIf="showErrors && registerForm.errors?.['passwordMismatch']">
+        Passwords do not match
+      </div>
+  
+      <div class="role-selection">
+        <p class="role-title">Choose your path:</p>
+        <div class="role-options">
+          <div class="role-card" [class.selected]="f['role'].value === 'BREACHER'" (click)="selectRole('BREACHER')">
+            <i class="fas fa-skull"></i>
+            <h3>BREACHER</h3>
+            <p>Open boxes, avoid traps, claim the jackpot</p>
+          </div>
+          <div class="role-card" [class.selected]="f['role'].value === 'ARCHITECT'" (click)="selectRole('ARCHITECT')">
+            <i class="fas fa-crown"></i>
+            <h3>ARCHITECT</h3>
+            <p>Design traps and outsmart other players</p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="terms-checkbox">
+        <label class="checkbox-container">
+          <input type="checkbox" formControlName="acceptTerms">
+          <span class="checkmark"></span>
+          I agree to the <a href="#" class="terms-link">Terms of Service</a> and
+          <a href="#" class="terms-link">Privacy Policy</a>
+        </label>
+        <div class="error-message" *ngIf="showErrors && f['acceptTerms'].errors?.['required']">
+          You must accept the terms and conditions
+        </div>
+      </div>
+  
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        <span *ngIf="!isLoading">CREATE ACCOUNT</span>
+        <app-loading-spinner *ngIf="isLoading" [size]="20"></app-loading-spinner>
+      </button>
+  
+      <div class="login-prompt">
+        Already have an account?
+        <a routerLink="/auth/login" class="login-link">Sign In</a>
+      </div>
+    </form>
+  </div>
